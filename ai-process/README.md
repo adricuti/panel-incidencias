@@ -32,6 +32,8 @@
 ## Revisión y decisiones manuales
 <!-- Completar tras la revisión: qué he cambiado, qué he validado y qué decisiones he tomado yo. -->
 - Elección de Inertia + React frente a Livewire.
+- **Tailwind frente a Bootstrap:** la IA eligió Tailwind (viene con Laravel 12). Lo revisé y decidí mantenerlo
+  porque evita CSS global y encaja con componentes pequeños; dejé documentado el motivo en el README.
 - Criterio de corrección de inconsistencias: qué se corrige automáticamente y qué se marca para revisión manual.
 - **Formulario de alta en un modal.** Tras probar la primera versión, decidí que el formulario fijo en una
   columna lateral restaba espacio al listado. Pedí sustituirlo por un botón que abra un modal y que el

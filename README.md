@@ -109,8 +109,14 @@ backend las transiciones permitidas y qué estados requieren confirmación.
 - **Frontend:** Inertia + React. El estado de los filtros vive en la URL (props que devuelve el backend); al
   filtrar se hace una visita parcial (`only: [incidents, counts, filters]`) que refresca la lista sin recargar.
   El nombre del operador vive en un contexto React (`ActorContext`) y se recuerda en `localStorage`.
+- **Tailwind CSS en lugar de Bootstrap** (el enunciado permite ambos):
+  - Laravel 12 ya lo trae instalado y configurado (`@tailwindcss/vite`), sin dependencias extra.
+  - Encaja con componentes React pequeños: cada componente lleva sus estilos en las clases y no hay una hoja
+    CSS global que crezca sin control. Todo el CSS propio del proyecto son las 4 líneas de `resources/css/app.css`.
+  - En el build solo se genera el CSS de las clases realmente usadas (las rutas `@source` le indican dónde buscarlas).
+  - Responsive con prefijos (`md:`, `sm:`, `lg:`): p. ej. tabla en escritorio (`hidden md:block`) y tarjetas en móvil (`md:hidden`).
 - **Componentes pequeños** en `resources/js/Components`; los estilos por estado están centralizados en
-  `resources/js/lib/status.js`.
+  `resources/js/lib/status.js`, para no repetir colores en cada componente.
 - **Modal con `<dialog>` nativo** (`Components/Modal.jsx`): `showModal()` ya aporta fondo, cierre con Esc y
   foco atrapado, sin librerías. El estado abierto/cerrado vive en la página (`useState`); el formulario no
   sabe que está en un modal, solo avisa con `onSuccess` / `onCancel`, así que es reutilizable.
