@@ -13,7 +13,11 @@ export default function Modal({ open, onClose, title, children }) {
     // Sincroniza la prop `open` con el estado real del <dialog>.
     useEffect(() => {
         const dialog = ref.current;
-        if (open && !dialog.open) dialog.showModal();
+        if (open && !dialog.open) {
+            dialog.showModal();
+            // showModal() enfoca el primer elemento enfocable (el botón ✕); es más útil empezar en el primer campo.
+            dialog.querySelector('input, textarea, select')?.focus();
+        }
         if (!open && dialog.open) dialog.close();
     }, [open]);
 

@@ -42,3 +42,7 @@
   obligatorio", pero en pantalla ese campo se llama "Operador" y está en la cabecera. Pedí que el mensaje
   hable de "Operador" y que el campo se resalte en rojo. Se cambió el mensaje en los Form Requests y se
   añadió el resaltado (con foco) desde `ActorContext`, también para los cambios de estado.
+- **Confirmación de cambio de estado en modal.** La primera versión usaba `window.prompt()` del navegador para
+  confirmar y pedir el motivo. Pedí que fuera un modal centrado como el de alta, por coherencia visual. Se
+  reutilizó el componente `Modal`. Al probarlo se detectó que el foco iba al botón de cerrar en lugar de al
+  campo de motivo; se corrigió en `Modal` para que enfoque el primer campo (mejora también el modal de alta).

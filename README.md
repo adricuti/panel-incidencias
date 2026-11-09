@@ -75,7 +75,8 @@ El comando es idempotente: ejecutarlo varias veces con `--fix` no duplica correc
 - **Resaltado** de incidencias bloqueadas (fondo rojo) y vencidas (borde naranja + "vencida").
 - **Crear incidencia** desde un botón que abre un **modal**, con validación y errores mostrados junto a cada
   campo (el modal no se cierra hasta que la incidencia se crea correctamente).
-- **Cambio de estado** solo con las transiciones permitidas; **confirmación** (con motivo opcional) antes de bloquear o resolver.
+- **Cambio de estado** solo con las transiciones permitidas; antes de bloquear o resolver se abre un **modal de
+  confirmación** con un motivo opcional, que queda registrado en el historial (`metadata.reason` del log).
 - **Detalle** con historial de cambios (logs) y comentarios operativos; añadir comentarios.
 - Diseño responsive: tabla en escritorio, tarjetas en móvil.
 
@@ -131,7 +132,9 @@ backend las transiciones permitidas y qué estados requieren confirmación.
   `resources/js/lib/status.js`, para no repetir colores en cada componente.
 - **Modal con `<dialog>` nativo** (`Components/Modal.jsx`): `showModal()` ya aporta fondo, cierre con Esc y
   foco atrapado, sin librerías. El estado abierto/cerrado vive en la página (`useState`); el formulario no
-  sabe que está en un modal, solo avisa con `onSuccess` / `onCancel`, así que es reutilizable.
+  sabe que está en un modal, solo avisa con `onSuccess` / `onCancel`, así que es reutilizable. El mismo
+  componente se usa para el alta y para confirmar cambios de estado (en vez de `window.prompt()`, que no se
+  puede maquetar ni es accesible). Al abrirse, el foco va al primer campo del formulario.
 - **MySQL 5.7:** se fuerza el motor `InnoDB` en `config/database.php` (`DB_ENGINE`) porque algunas
   instalaciones usan MyISAM por defecto, sin FKs ni transacciones.
 
