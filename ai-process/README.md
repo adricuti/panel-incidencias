@@ -30,7 +30,6 @@
 - `incidents:diagnose` en dry-run, con `--fix` y re-ejecutado (idempotente: la segunda vez no hace nada).
 
 ## Revisión y decisiones manuales
-<!-- Completar tras la revisión: qué he cambiado, qué he validado y qué decisiones he tomado yo. -->
 - Elección de Inertia + React frente a Livewire.
 - **Tailwind frente a Bootstrap:** la IA eligió Tailwind (viene con Laravel 12). Lo revisé y decidí mantenerlo
   porque evita CSS global y encaja con componentes pequeños; dejé documentado el motivo en el README.

@@ -19,7 +19,7 @@ más una herramienta de **diagnóstico de inconsistencias** de datos.
 ## Instalación
 
 ```bash
-git clone <url-del-repositorio> panel-incidencias
+git clone https://github.com/adricuti/panel-incidencias.git
 cd panel-incidencias
 
 composer install
