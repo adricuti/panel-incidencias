@@ -1,8 +1,12 @@
 import { useForm } from '@inertiajs/react';
 import Field, { inputClass } from './Field';
 
-export default function CreateIncidentForm({ priorities }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
+/**
+ * Formulario de alta. No sabe que vive dentro de un modal: avisa con onSuccess / onCancel
+ * y es el padre quien decide qué hacer (cerrar el modal).
+ */
+export default function CreateIncidentForm({ priorities, onSuccess, onCancel }) {
+    const { data, setData, post, processing, errors } = useForm({
         title: '',
         description: '',
         priority: 'medium',
@@ -13,13 +17,11 @@ export default function CreateIncidentForm({ priorities }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post('/incidents', { preserveScroll: true, onSuccess: () => reset() });
+        post('/incidents', { preserveScroll: true, onSuccess });
     };
 
     return (
-        <form onSubmit={submit} className="space-y-3 rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200" noValidate>
-            <h2 className="text-lg font-semibold">Nueva incidencia</h2>
-
+        <form onSubmit={submit} className="space-y-3" noValidate>
             <Field label="Título" error={errors.title}>
                 <input className={inputClass} value={data.title} onChange={(e) => setData('title', e.target.value)} />
             </Field>
@@ -49,9 +51,14 @@ export default function CreateIncidentForm({ priorities }) {
                 <input className={inputClass} value={data.assigned_to} onChange={(e) => setData('assigned_to', e.target.value)} />
             </Field>
 
-            <button type="submit" disabled={processing} className="w-full rounded-md bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:opacity-50">
-                {processing ? 'Guardando…' : 'Crear incidencia'}
-            </button>
+            <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={onCancel} className="rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100">
+                    Cancelar
+                </button>
+                <button type="submit" disabled={processing} className="rounded-md bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:opacity-50">
+                    {processing ? 'Guardando…' : 'Crear incidencia'}
+                </button>
+            </div>
         </form>
     );
 }
