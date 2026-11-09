@@ -37,7 +37,10 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            //
+            // Mensajes flash de las acciones (crear, cambiar estado, comentar).
+            'flash' => fn () => [
+                'success' => $request->session()->get('success'),
+            ],
         ];
     }
 }
