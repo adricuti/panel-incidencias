@@ -42,7 +42,9 @@ php artisan migrate:fresh --seed
 ```
 
 Carga 7 incidencias coherentes (creadas a través del servicio de dominio, con sus logs) y 4 incidencias
-marcadas como `[SIM]` con inconsistencias simuladas para el ejercicio de diagnóstico.
+con inconsistencias simuladas para el ejercicio de diagnóstico. Estas últimas llevan el prefijo **`[SIM]`
+(simulada)** en el título para distinguirlas de un vistazo; su descripción explica que representan datos
+importados de un sistema anterior con el historial incompleto o incorrecto.
 
 ## Levantar la aplicación
 

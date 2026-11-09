@@ -65,3 +65,8 @@
     se reconstruye solo si el estado actual es una transición válida desde el último registrado
     (`IncidentStatus::canTransitionTo()`); si no, se marca para revisión. El caso simulado 2 se cambió a un
     salto no permitido ("abierta" → "bloqueada") para que ejemplifique la rama de revisión manual.
+- **Datos simulados más claros.** Las incidencias simuladas tenían como solicitante y actor "Migración legacy",
+  que no es una persona y resultaba confuso en un campo "Solicitante". Pedí usar personas, como en el resto de
+  datos: lo incorrecto en estas incidencias es la coherencia entre estado e historial, no quién las pidió. El
+  origen (datos importados de un sistema anterior) se explica ahora en la descripción, y el README aclara que
+  `[SIM]` significa "simulada".
