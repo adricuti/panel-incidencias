@@ -1,16 +1,28 @@
 import { Link, usePage } from '@inertiajs/react';
+import { useEffect, useRef } from 'react';
 import { ActorProvider, useActor } from './ActorContext';
 
 function ActorInput() {
-    const { actor, setActor } = useActor();
+    const { actor, setActor, missing } = useActor();
+    const ref = useRef(null);
+
+    // Cuando una acción lo necesita y está vacío, se lleva el foco (y el scroll) al campo.
+    useEffect(() => {
+        if (missing) ref.current?.focus();
+    }, [missing]);
+
     return (
         <label className="flex items-center gap-2 text-sm">
-            <span className="text-slate-300">Operador:</span>
+            <span className={missing ? 'font-semibold text-red-300' : 'text-slate-300'}>Operador:</span>
             <input
+                ref={ref}
                 value={actor}
                 onChange={(e) => setActor(e.target.value)}
                 placeholder="Tu nombre"
-                className="w-40 rounded-md border-0 bg-slate-700 px-2 py-1 text-white placeholder:text-slate-400 focus:ring-2 focus:ring-sky-400"
+                aria-invalid={missing}
+                className={`w-40 rounded-md border-0 bg-slate-700 px-2 py-1 text-white placeholder:text-slate-400 focus:outline-none ${
+                    missing ? 'ring-2 ring-red-500 focus:ring-red-500' : 'focus:ring-2 focus:ring-sky-400'
+                }`}
             />
         </label>
     );

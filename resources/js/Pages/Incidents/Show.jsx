@@ -3,7 +3,7 @@ import Layout from '../../Components/Layout';
 import StatusBadge from '../../Components/StatusBadge';
 import StatusActions from '../../Components/StatusActions';
 import Field, { inputClass } from '../../Components/Field';
-import { useActor } from '../../Components/ActorContext';
+import { MISSING_ACTOR_MESSAGE, useActor } from '../../Components/ActorContext';
 import { findStatus, formatDate } from '../../lib/status';
 
 const ACTION_LABELS = {
@@ -37,11 +37,21 @@ function History({ logs, statuses }) {
 }
 
 function CommentForm({ incidentId }) {
-    const { actor } = useActor();
-    const { data, setData, post, processing, errors, reset, transform } = useForm({ body: '' });
+    const { requireActor } = useActor();
+    const { data, setData, post, processing, errors, reset, transform, setError, clearErrors } = useForm({ body: '' });
 
     const submit = (e) => {
         e.preventDefault();
+        clearErrors();
+
+        // Comprobación previa en el cliente: resalta el campo Operador sin hacer la petición.
+        // El servidor lo vuelve a validar igualmente (StoreCommentRequest).
+        const actor = requireActor();
+        if (!actor) {
+            setError('author_name', MISSING_ACTOR_MESSAGE);
+            return;
+        }
+
         transform((d) => ({ ...d, author_name: actor }));
         post(`/incidents/${incidentId}/comments`, { preserveScroll: true, onSuccess: () => reset() });
     };

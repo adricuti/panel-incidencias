@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
-import { useActor } from './ActorContext';
+import { MISSING_ACTOR_MESSAGE, useActor } from './ActorContext';
 import { findStatus } from '../lib/status';
 
 /**
@@ -8,7 +8,7 @@ import { findStatus } from '../lib/status';
  * Las transiciones y qué estados requieren confirmación vienen del backend.
  */
 export default function StatusActions({ incident, statuses, compact = false }) {
-    const { actor } = useActor();
+    const { requireActor } = useActor();
     const [error, setError] = useState(null);
     const [processing, setProcessing] = useState(false);
 
@@ -17,8 +17,9 @@ export default function StatusActions({ incident, statuses, compact = false }) {
 
     const change = (target) => {
         setError(null);
-        if (!actor.trim()) {
-            setError('Indica tu nombre de operador en la cabecera.');
+        const actor = requireActor();
+        if (!actor) {
+            setError(MISSING_ACTOR_MESSAGE);
             return;
         }
 

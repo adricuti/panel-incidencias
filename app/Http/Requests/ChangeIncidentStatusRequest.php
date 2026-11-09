@@ -23,6 +23,11 @@ class ChangeIncidentStatusRequest extends FormRequest
 
     public function attributes(): array
     {
-        return ['status' => 'estado', 'actor_name' => 'nombre del operador', 'reason' => 'motivo'];
+        return ['status' => 'estado', 'actor_name' => 'operador', 'reason' => 'motivo'];
+    }
+
+    public function messages(): array
+    {
+        return ['actor_name.required' => 'Indica tu nombre en el campo "Operador" de la cabecera.'];
     }
 }

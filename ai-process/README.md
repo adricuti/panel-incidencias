@@ -38,3 +38,7 @@
 - **Formulario de alta en un modal.** Tras probar la primera versión, decidí que el formulario fijo en una
   columna lateral restaba espacio al listado. Pedí sustituirlo por un botón que abra un modal y que el
   listado ocupe todo el ancho. Implementado con `<dialog>` nativo.
+- **Mensaje de operador confuso.** Al probar los comentarios sin nombre, el error decía "El campo autor es
+  obligatorio", pero en pantalla ese campo se llama "Operador" y está en la cabecera. Pedí que el mensaje
+  hable de "Operador" y que el campo se resalte en rojo. Se cambió el mensaje en los Form Requests y se
+  añadió el resaltado (con foco) desde `ActorContext`, también para los cambios de estado.

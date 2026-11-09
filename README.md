@@ -54,7 +54,8 @@ php artisan serve
 Abrir <http://127.0.0.1:8000>. Para desarrollo con recarga en caliente: `npm run dev` en otra terminal.
 
 No hay autenticación (fuera de alcance). El **nombre del operador** se escribe en la cabecera y es el que
-queda registrado en los logs como actor.
+queda registrado en los logs como actor. Si se intenta cambiar un estado o comentar sin haberlo indicado, el
+campo "Operador" se resalta en rojo y recibe el foco.
 
 ## Diagnóstico de inconsistencias
 
@@ -108,7 +109,9 @@ backend las transiciones permitidas y qué estados requieren confirmación.
 - **Campo extra `due_date`** (fecha límite, opcional) para poder calcular incidencias vencidas.
 - **Frontend:** Inertia + React. El estado de los filtros vive en la URL (props que devuelve el backend); al
   filtrar se hace una visita parcial (`only: [incidents, counts, filters]`) que refresca la lista sin recargar.
-  El nombre del operador vive en un contexto React (`ActorContext`) y se recuerda en `localStorage`.
+  El nombre del operador vive en un contexto React (`ActorContext`) y se recuerda en `localStorage`. El mismo
+  contexto expone `requireActor()`: las acciones lo llaman antes de enviar la petición y, si falta el nombre,
+  la cabecera resalta el campo sin hacer la llamada. El servidor lo valida igualmente (los Form Requests).
 - **Tailwind CSS en lugar de Bootstrap** (el enunciado permite ambos):
   - Laravel 12 ya lo trae instalado y configurado (`@tailwindcss/vite`), sin dependencias extra.
   - Encaja con componentes React pequeños: cada componente lleva sus estilos en las clases y no hay una hoja
