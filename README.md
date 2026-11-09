@@ -106,6 +106,15 @@ backend las transiciones permitidas y qué estados requieren confirmación.
   trazabilidad no desaparezca en cascada. Los comentarios sí se borran en cascada con la incidencia.
 - **Índices:** `(status, priority)` y `priority` para los filtros, `created_at` para el orden del listado,
   `(incident_id, created_at)` en logs y comentarios para el historial y para buscar el último log de estado.
+- **Operador sin autenticación.** El enunciado exige registrar el actor de cada cambio, pero la autenticación
+  no es obligatoria. Sin login la aplicación no sabe quién la usa, así que el operador escribe su nombre en
+  la cabecera y se envía con cada acción (`incident_logs.user_name`, `incident_comments.author_name`).
+  - **Limitación:** es texto libre, cualquiera puede escribir cualquier nombre, así que **no es fiable como
+    auditoría**. Es aceptable para el alcance de la prueba, no para producción.
+  - **Con autenticación** (p. ej. Laravel Breeze con Inertia + React): desaparece el campo "Operador" y el
+    actor se toma en el backend del usuario autenticado (`$request->user()`), sin que lo envíe el cliente, por
+    lo que no se puede falsificar. En BD, `user_name`, `author_name`, `requester_name` y `assigned_to` pasarían
+    a ser `user_id`, `author_id`, `requester_id` y `assigned_to_id`, con clave foránea a `users`.
 - **Campo extra `due_date`** (fecha límite, opcional) para poder calcular incidencias vencidas.
 - **Frontend:** Inertia + React. El estado de los filtros vive en la URL (props que devuelve el backend); al
   filtrar se hace una visita parcial (`only: [incidents, counts, filters]`) que refresca la lista sin recargar.
@@ -226,5 +235,6 @@ ai-process/                                 Uso de IA en esta prueba
 ## Qué mejoraría con más tiempo
 
 - Tests de feature para transiciones de estado y para el comando de diagnóstico.
-- Autenticación real para que el actor de los logs no sea un texto libre.
+- Autenticación real para que el actor de los logs no sea un texto libre (ver "Operador sin autenticación"
+  en Decisiones técnicas).
 - Una pantalla para resolver las inconsistencias marcadas para revisión manual.
