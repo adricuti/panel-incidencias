@@ -52,3 +52,6 @@
   acciones del historial estaban escritas a mano en React (`ACTION_LABELS`), repitiendo el enum del backend, que
   es justo lo que el enunciado pide evitar ("strings mágicos dispersos"). Se movieron a
   `IncidentLogAction::label()` y el backend las envía a la página.
+- **Cursor en los botones.** Detecté que los botones no mostraban el cursor de "mano", lo que hace menos evidente
+  que son clicables. Es un cambio de Tailwind 4 respecto a versiones anteriores. Se añadió una regla base global
+  en `app.css` (la solución que recomienda Tailwind) en lugar de añadir `cursor-pointer` botón por botón.

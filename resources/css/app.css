@@ -1,5 +1,22 @@
 @import 'tailwindcss';
 
+/* Ficheros donde Tailwind busca clases para generar solo el CSS que se usa. */
 @source '../views/**/*.blade.php';
 @source '../js/**/*.jsx';
 @source '../js/**/*.js';
+
+/*
+ * Tailwind 4 deja los botones con el cursor por defecto (flecha). Se restaura la "mano" en todos
+ * los elementos clicables para que se vea claramente que lo son, y se indica cuando están deshabilitados.
+ * Regla global en lugar de añadir cursor-pointer a cada botón: un solo sitio y no se olvida en los nuevos.
+ */
+@layer base {
+    button:not(:disabled),
+    [role='button']:not(:disabled) {
+        cursor: pointer;
+    }
+
+    button:disabled {
+        cursor: not-allowed;
+    }
+}

@@ -126,7 +126,9 @@ backend las transiciones permitidas y qué estados requieren confirmación.
 - **Tailwind CSS en lugar de Bootstrap** (el enunciado permite ambos):
   - Laravel 12 ya lo trae instalado y configurado (`@tailwindcss/vite`), sin dependencias extra.
   - Encaja con componentes React pequeños: cada componente lleva sus estilos en las clases y no hay una hoja
-    CSS global que crezca sin control. Todo el CSS propio del proyecto son las 4 líneas de `resources/css/app.css`.
+    CSS global que crezca sin control. El único CSS propio está en `resources/css/app.css`: la importación de
+    Tailwind y una regla base que restaura el cursor de "mano" en los botones (Tailwind 4 lo quita por defecto)
+    y muestra "no permitido" en los deshabilitados. Es global para que ningún botón nuevo se quede sin ella.
   - En el build solo se genera el CSS de las clases realmente usadas (las rutas `@source` le indican dónde buscarlas).
   - Responsive con prefijos (`md:`, `sm:`, `lg:`): p. ej. tabla en escritorio (`hidden md:block`) y tarjetas en móvil (`md:hidden`).
 - **Componentes pequeños** en `resources/js/Components`; los estilos por estado están centralizados en
