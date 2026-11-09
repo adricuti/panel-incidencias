@@ -64,7 +64,8 @@ php artisan incidents:diagnose          # dry-run: solo muestra qué encontrarí
 php artisan incidents:diagnose --fix    # aplica las correcciones seguras en una transacción
 ```
 
-El comando es idempotente: ejecutarlo varias veces con `--fix` no duplica correcciones ni marcas.
+El informe indica, para cada caso, qué se hará y por qué. El comando es idempotente: ejecutarlo varias veces
+con `--fix` no duplica correcciones ni marcas; lo ya marcado aparece como "Ya marcada (pendiente de revisión)".
 
 ---
 
@@ -149,6 +150,44 @@ Los datos los crea `database/seeders/InconsistentDataSeeder.php` con `DB::table`
 que es justamente lo que provoca este tipo de problemas en producción: scripts, migraciones antiguas, reintentos).
 El diagnóstico está en `app/Services/IncidentConsistencyChecker.php` y se lanza con `incidents:diagnose`.
 
+### Criterio de prudencia
+
+| Caso | ¿Se corrige solo? | Qué se hace |
+|---|---|---|
+| 1. Resuelta sin log de resolución | Según la regla única | En los datos simulados: **sí**, se reconstruye el log |
+| 2. Estado distinto del último log | Según la regla única | En los datos simulados: **no**, se marca para revisión |
+| 3a. Log duplicado (copia exacta) | Sí | Se borran las copias y se deja un log con lo borrado |
+| 3b. Log incoherente | No | Se marca para revisión |
+
+Principios:
+
+- **No se inventa información.** Nunca se cambia el estado de una incidencia ni se inventa quién o cuándo
+  hizo algo. Lo reconstruido se marca como tal (`metadata.reconstructed`, actor `system:diagnose`).
+- **La corrección también es trazable.** Cada acción del diagnóstico deja un log en la incidencia afectada,
+  visible en su historial, incluida la eliminación de duplicados.
+- **Todo en una transacción**, y siempre con `dry-run` previo.
+
+**Regla única para los desajustes de estado (casos 1 y 2).** El caso 1 es en realidad un caso particular del 2
+(la tabla dice "resuelta" y el último log dice otra cosa), así que ambos siguen la misma regla, en lugar de
+confiar en la tabla en uno y no en el otro:
+
+- Si el estado actual es una **transición válida** desde el último estado registrado
+  (`IncidentStatus::canTransitionTo()`, la misma regla que aplica la aplicación), el estado es plausible y
+  solo falta el log: se crea un log `status_backfilled` con el paso que falta.
+- Si **no es una transición válida** (o no hay ningún log de estado), el estado es imposible según el flujo:
+  falta al menos un paso intermedio y no se sabe cuál. Reconstruirlo sería inventar, así que se marca
+  (`inconsistency_flagged`) para revisión manual.
+
+En los datos simulados: la incidencia 1 pasó de "en revisión" a "resuelta" (válido → se reconstruye) y la 2 de
+"abierta" a "bloqueada" (no permitido → se marca).
+
+> El log reconstruido se crea con la fecha de la corrección, no con la fecha real del cambio, que se desconoce.
+> En el historial aparece como "Cambio de estado reconstruido (diagnóstico)", así que no se confunde con un
+> cambio real hecho ese día.
+
+Para todas las consultas, el "último log de estado" se toma entre las acciones que representan un estado
+(`created`, `status_changed`, `reopened`, `status_backfilled`): un comentario o una marca no cambian el estado.
+
 ### 1. Incidencia resuelta sin log de resolución
 
 ```sql
@@ -159,15 +198,15 @@ WHERE i.status = 'resolved'
       SELECT 1 FROM incident_logs l
       WHERE l.incident_id = i.id
         AND l.new_value = 'resolved'
-        AND l.action IN ('created','status_changed','reopened','resolution_backfilled')
+        AND l.action IN ('created','status_changed','reopened','status_backfilled')
   );
 ```
 
 **Por qué funciona:** toda resolución legítima pasa por el servicio y deja un log con `new_value = 'resolved'`;
 si no existe ninguno, el estado se cambió por fuera.
 
-**Corrección (automática):** se crea un log `resolution_backfilled` con `user_name = system:diagnose` y
-`metadata.reconstructed = true`. **No se inventa** quién ni cuándo resolvió: queda explícito que es reconstruido.
+**Corrección:** según la regla única. Si el último estado registrado puede pasar a "resuelta" (solo desde
+"en revisión"), se reconstruye el log; si no, se marca para revisión.
 
 ### 2. Estado distinto del último log de estado
 
@@ -177,7 +216,7 @@ FROM incidents i
 JOIN incident_logs l ON l.id = (
     SELECT l2.id FROM incident_logs l2
     WHERE l2.incident_id = i.id
-      AND l2.action IN ('created','status_changed','reopened','resolution_backfilled')
+      AND l2.action IN ('created','status_changed','reopened','status_backfilled')
     ORDER BY l2.created_at DESC, l2.id DESC
     LIMIT 1
 )
@@ -187,25 +226,28 @@ WHERE l.new_value <> i.status;
 **Por qué funciona:** el último log de estado debería describir el estado actual; si difieren, uno de los dos
 está mal. Se excluyen las del caso 1 para no reportarlas dos veces.
 
-**Corrección: NO automática.** No hay forma de saber si la verdad es la tabla o el log, y cambiar el estado
-podría ocultar un problema real. Se añade un log `inconsistency_flagged` con el detalle, visible en el
-historial de la incidencia, para revisión manual. El comando lo sigue listando hasta que alguien lo resuelva.
+**Corrección:** según la regla única. En el caso simulado ("abierta" → "bloqueada", transición no permitida)
+**no se corrige automáticamente**: no se sabe qué pasó entre medias ni si la verdad es la tabla o el log, y
+cambiar el estado podría ocultar un problema real. Se añade un log `inconsistency_flagged` con el motivo,
+visible en el historial, y el comando lo sigue listando como "pendiente de revisión" hasta que alguien lo resuelva.
 
 ### 3a. Log duplicado
 
 ```sql
-SELECT incident_id, action, old_value, new_value, created_at,
+SELECT incident_id, action, old_value, new_value, user_name, created_at,
        COUNT(*) AS copies, MIN(id) AS keep_id, GROUP_CONCAT(id ORDER BY id) AS ids
 FROM incident_logs
-GROUP BY incident_id, action, old_value, new_value, created_at
+GROUP BY incident_id, action, old_value, new_value, user_name, CAST(metadata AS CHAR), created_at
 HAVING COUNT(*) > 1;
 ```
 
-**Por qué funciona:** dos registros idénticos en todo salvo el `id` son el mismo evento registrado dos veces
-(doble envío, reintento).
+**Por qué funciona:** dos registros idénticos en **todos** los campos salvo el `id` (incluidos actor, metadata
+y fecha) son el mismo evento registrado dos veces (doble envío, reintento). Si difieren en algo, no se
+consideran duplicados. `metadata` se compara como texto porque es una columna JSON.
 
-**Corrección (automática):** se conserva el de menor `id` y se borran las copias. Es seguro porque son copias
-exactas: no se pierde información.
+**Corrección (automática):** se conserva el de menor `id` y se borran las copias. Como los logs son el registro
+de auditoría, el borrado no es silencioso: antes se crea en la incidencia un log `duplicate_logs_removed` con
+los ids borrados, el id conservado y los datos originales. No se pierde información y la limpieza queda trazada.
 
 ### 3b. Log incoherente
 

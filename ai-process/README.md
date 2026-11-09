@@ -55,3 +55,13 @@
 - **Cursor en los botones.** Detecté que los botones no mostraban el cursor de "mano", lo que hace menos evidente
   que son clicables. Es un cambio de Tailwind 4 respecto a versiones anteriores. Se añadió una regla base global
   en `app.css` (la solución que recomienda Tailwind) en lugar de añadir `cursor-pointer` botón por botón.
+- **Revisión del criterio de prudencia del ejercicio 5.** Revisé el diagnóstico frente al requisito de
+  prudencia y detecté dos puntos débiles en la primera versión, que pedí corregir:
+  - **Borrado de duplicados sin rastro:** se decía que los logs son un registro de auditoría inmutable, pero el
+    diagnóstico borraba copias sin dejar constancia. Ahora deja antes un log con lo borrado, y solo considera
+    duplicados las copias exactas en todos los campos (también actor y metadata).
+  - **Criterio incoherente entre los casos 1 y 2:** en el caso 1 se confiaba en la tabla (se reconstruía el log)
+    y en el 2 no (se marcaba), aunque el 1 es un caso particular del 2. Ahora ambos siguen una regla única:
+    se reconstruye solo si el estado actual es una transición válida desde el último registrado
+    (`IncidentStatus::canTransitionTo()`); si no, se marca para revisión. El caso simulado 2 se cambió a un
+    salto no permitido ("abierta" → "bloqueada") para que ejemplifique la rama de revisión manual.

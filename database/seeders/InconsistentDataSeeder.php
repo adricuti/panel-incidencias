@@ -24,15 +24,17 @@ class InconsistentDataSeeder extends Seeder
         $t = Carbon::now()->subDays(5);
 
         // Inconsistencia 1: incidencia resuelta sin log de resolución.
+        // El último log dice "en revisión" y "en revisión → resuelta" es una transición válida:
+        // el estado es plausible y solo falta el log -> el diagnóstico lo reconstruye.
         $id1 = $this->incident('[SIM] Resuelta sin log de resolución', S::Resolved, $t);
         $this->log($id1, A::Created, null, S::Open, $t);
         $this->log($id1, A::StatusChanged, S::Open, S::InReview, $t->copy()->addHour());
 
         // Inconsistencia 2: el estado no coincide con su último log de estado.
-        // La tabla dice "bloqueada", pero el último log dice "en revisión".
+        // La tabla dice "bloqueada", pero el último log dice "abierta", y "abierta → bloqueada" no es
+        // una transición permitida: falta al menos un paso y no se sabe cuál -> se marca para revisión.
         $id2 = $this->incident('[SIM] Estado distinto del último log', S::Blocked, $t);
         $this->log($id2, A::Created, null, S::Open, $t);
-        $this->log($id2, A::StatusChanged, S::Open, S::InReview, $t->copy()->addHour());
 
         // Inconsistencia 3a: log duplicado (mismo cambio registrado dos veces, p. ej. doble envío).
         $id3 = $this->incident('[SIM] Log duplicado', S::InReview, $t);

@@ -17,8 +17,10 @@ enum IncidentLogAction: string
     case CommentAdded = 'comment_added';
 
     // Acciones generadas por el diagnóstico de inconsistencias (incidents:diagnose).
-    case ResolutionBackfilled = 'resolution_backfilled';
+    // Todas quedan con user_name = 'system:diagnose', de modo que la propia corrección también es trazable.
+    case StatusBackfilled = 'status_backfilled';
     case InconsistencyFlagged = 'inconsistency_flagged';
+    case DuplicateLogsRemoved = 'duplicate_logs_removed';
 
     public function label(): string
     {
@@ -27,8 +29,9 @@ enum IncidentLogAction: string
             self::StatusChanged => 'Cambio de estado',
             self::Reopened => 'Reapertura',
             self::CommentAdded => 'Comentario',
-            self::ResolutionBackfilled => 'Resolución reconstruida (diagnóstico)',
+            self::StatusBackfilled => 'Cambio de estado reconstruido (diagnóstico)',
             self::InconsistencyFlagged => 'Inconsistencia marcada para revisión',
+            self::DuplicateLogsRemoved => 'Logs duplicados eliminados (diagnóstico)',
         };
     }
 
@@ -42,7 +45,7 @@ enum IncidentLogAction: string
      */
     public static function statusActions(): array
     {
-        return [self::Created->value, self::StatusChanged->value, self::Reopened->value, self::ResolutionBackfilled->value];
+        return [self::Created->value, self::StatusChanged->value, self::Reopened->value, self::StatusBackfilled->value];
     }
 
     /**

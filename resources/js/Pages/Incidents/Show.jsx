@@ -31,6 +31,8 @@ function History({ logs, statuses, logActions }) {
                     {log.metadata?.reason && <div className="text-slate-600 italic">Motivo: {log.metadata.reason}</div>}
                     {/* metadata.issue: detalle de una inconsistencia marcada por incidents:diagnose. */}
                     {log.metadata?.issue && <div className="text-orange-700">{log.metadata.issue}</div>}
+                    {/* metadata.note: explicación de una corrección automática (log reconstruido, duplicados eliminados). */}
+                    {log.metadata?.note && <div className="text-slate-500 italic">{log.metadata.note}</div>}
                     <div className="text-xs text-slate-400">{log.user_name} · {formatDate(log.created_at)}</div>
                 </li>
             ))}
