@@ -2,6 +2,10 @@ import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
 import { ActorProvider, useActor } from './ActorContext';
 
+/**
+ * Campo "Operador" de la cabecera. Lee y escribe el nombre en ActorContext y se pone en rojo
+ * (con foco) cuando una acción lo ha necesitado y estaba vacío (missing).
+ */
 function ActorInput() {
     const { actor, setActor, missing } = useActor();
     const ref = useRef(null);
@@ -28,6 +32,10 @@ function ActorInput() {
     );
 }
 
+/**
+ * Mensaje de éxito de la última acción. Lo envía el backend con back()->with('success', ...)
+ * y lo comparte con todas las páginas HandleInertiaRequests::share() como props.flash.
+ */
 function Flash() {
     const { flash } = usePage().props;
     if (!flash?.success) return null;
@@ -38,6 +46,11 @@ function Flash() {
     );
 }
 
+/**
+ * Estructura común de todas las páginas: cabecera con nombre, descripción y operador,
+ * mensaje flash y contenido. Envuelve todo en ActorProvider para que cualquier componente
+ * (botones de estado, formulario de comentarios) pueda acceder al operador.
+ */
 export default function Layout({ children }) {
     return (
         <ActorProvider>

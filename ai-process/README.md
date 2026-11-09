@@ -46,3 +46,9 @@
   confirmar y pedir el motivo. Pedí que fuera un modal centrado como el de alta, por coherencia visual. Se
   reutilizó el componente `Modal`. Al probarlo se detectó que el foco iba al botón de cerrar en lugar de al
   campo de motivo; se corrigió en `Modal` para que enfoque el primer campo (mejora también el modal de alta).
+- **Comentarios de código insuficientes.** Al revisar el código consideré pobres los comentarios de varias
+  partes (controlador, modelos, migraciones, página de detalle). Pedí completarlos explicando el porqué de cada
+  decisión, no lo que hace cada línea. En esa revisión apareció además una duplicación: las etiquetas de las
+  acciones del historial estaban escritas a mano en React (`ACTION_LABELS`), repitiendo el enum del backend, que
+  es justo lo que el enunciado pide evitar ("strings mágicos dispersos"). Se movieron a
+  `IncidentLogAction::label()` y el backend las envía a la página.

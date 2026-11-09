@@ -1,5 +1,6 @@
 import { STATUS_STYLES, findStatus } from '../lib/status';
 
+/** Etiqueta de color con el estado de una incidencia (colores en lib/status.js, texto del backend). */
 export default function StatusBadge({ status, statuses }) {
     const label = findStatus(statuses, status)?.label ?? status;
     return (

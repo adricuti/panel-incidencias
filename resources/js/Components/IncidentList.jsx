@@ -3,10 +3,12 @@ import StatusBadge from './StatusBadge';
 import StatusActions from './StatusActions';
 import { PRIORITY_STYLES, formatDate } from '../lib/status';
 
-// Resaltado: bloqueadas en rojo suave, vencidas con borde lateral.
+// Resaltado: bloqueadas con fondo rojo suave, vencidas con borde lateral naranja.
+// El borde transparente en las demás mantiene todas las filas alineadas.
 const rowHighlight = (i) =>
     [i.status === 'blocked' ? 'bg-red-50' : '', i.is_overdue ? 'border-l-4 border-l-orange-500' : 'border-l-4 border-l-transparent'].join(' ');
 
+/** Fecha límite; si está vencida (is_overdue, calculado en el backend) se marca en naranja. */
 function DueDate({ incident }) {
     if (!incident.due_date) return <span className="text-slate-400">—</span>;
     return (
@@ -17,6 +19,12 @@ function DueDate({ incident }) {
     );
 }
 
+/**
+ * Listado de incidencias de la página actual.
+ *
+ * Se pintan dos versiones con los mismos datos y Tailwind muestra solo una según el ancho:
+ * tabla en escritorio (md y superior) y tarjetas en móvil, donde una tabla de 7 columnas no cabe.
+ */
 export default function IncidentList({ incidents, statuses }) {
     if (incidents.length === 0) {
         return <p className="rounded-lg bg-white p-6 text-center text-slate-500 ring-1 ring-slate-200">No hay incidencias con estos filtros.</p>;

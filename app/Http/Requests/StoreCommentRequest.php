@@ -4,6 +4,12 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Validación de un comentario operativo.
+ *
+ * author_name es el operador indicado en la cabecera (no hay autenticación). El frontend ya
+ * comprueba que exista antes de enviar, pero se valida aquí igualmente: nunca se confía solo en el cliente.
+ */
 class StoreCommentRequest extends FormRequest
 {
     public function rules(): array

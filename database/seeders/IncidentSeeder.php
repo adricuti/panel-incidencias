@@ -15,6 +15,9 @@ class IncidentSeeder extends Seeder
 {
     public function run(IncidentService $service): void
     {
+        // Cada fila: título, descripción, prioridad, solicitante, responsable,
+        // fecha límite relativa a hoy (null = sin fecha) y transiciones a aplicar tras crearla.
+        // Las fechas pasadas generan incidencias vencidas para ver el resaltado en el listado.
         $rows = [
             ['Caída del TPV en tienda Diagonal', 'Los terminales no sincronizan ventas desde las 9:00.', P::Critical, 'Laura Gil', 'Marc Puig', '-2 days', [S::InReview]],
             ['Error en importación de stock', 'El CSV del proveedor llega con columnas cambiadas.', P::High, 'Jordi Serra', 'Anna Roca', '+3 days', [S::InReview, S::Blocked]],
@@ -35,6 +38,8 @@ class IncidentSeeder extends Seeder
                 'due_date' => $due ? now()->modify($due)->toDateString() : null,
             ], $requester);
 
+            // Las transiciones pasan por changeStatus(): se validan y cada una deja su log,
+            // igual que si un operador las hiciera desde la interfaz.
             foreach ($transitions as $status) {
                 $service->changeStatus($incident, $status, $assigned ?? 'operador', 'Dato de ejemplo');
             }

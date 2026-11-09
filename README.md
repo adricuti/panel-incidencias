@@ -96,8 +96,9 @@ backend las transiciones permitidas y qué estados requieren confirmación.
 
 ## Decisiones técnicas
 
-- **Estados y prioridades como enums PHP** (`app/Enums`), con *cast* en el modelo. En BD se guardan como
-  `string`, no como `ENUM` de MySQL, para poder añadir estados sin alterar la columna.
+- **Estados, prioridades y acciones de log como enums PHP** (`app/Enums`), con *cast* en el modelo. En BD se
+  guardan como `string`, no como `ENUM` de MySQL, para poder añadir valores sin alterar la columna. Cada enum
+  tiene su `label()`, y el frontend recibe las etiquetas del backend: no hay textos ni valores duplicados en React.
 - **Servicio de dominio** (`app/Services/IncidentService.php`): toda escritura pasa por él. Cada acción que
   modifica la incidencia y su log va en `DB::transaction`. El cambio de estado usa `lockForUpdate()` para
   evitar que dos operadores cambien el estado a la vez desde el mismo estado de origen.

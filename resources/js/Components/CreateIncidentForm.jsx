@@ -15,8 +15,11 @@ export default function CreateIncidentForm({ priorities, onSuccess, onCancel }) 
         due_date: '',
     });
 
+    // useForm de Inertia gestiona los datos, el estado de envío (processing) y los errores
+    // de validación que devuelve StoreIncidentRequest (errors.title, errors.priority...).
     const submit = (e) => {
         e.preventDefault();
+        // onSuccess solo se ejecuta si el backend no devuelve errores: si los hay, el modal sigue abierto.
         post('/incidents', { preserveScroll: true, onSuccess });
     };
 

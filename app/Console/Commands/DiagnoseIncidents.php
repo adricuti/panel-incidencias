@@ -17,6 +17,8 @@ class DiagnoseIncidents extends Command
 
     public function handle(IncidentConsistencyChecker $checker): int
     {
+        // Primero siempre se muestra el informe (lo mismo en dry-run que con --fix),
+        // para que quede constancia de qué se encontró antes de modificar nada.
         $fix = (bool) $this->option('fix');
         $this->info($fix ? 'Modo CORRECCIÓN' : 'Modo DRY-RUN (no se modifica nada; usa --fix para aplicar)');
 
@@ -38,10 +40,12 @@ class DiagnoseIncidents extends Command
         $this->section('3b) Logs incoherentes (estado anterior = nuevo)', 'Se marcan para revisión manual, no se borran.');
         $this->table(['log', 'incidencia', 'acción', 'de → a'], $incoherent->map(fn ($r) => [$r->id, $r->incident_id, $r->action, "{$r->old_value} → {$r->new_value}"]));
 
+        // Dry-run: termina aquí sin tocar la base de datos.
         if (! $fix) {
             return self::SUCCESS;
         }
 
+        // Todas las correcciones se aplican en una única transacción (ver IncidentConsistencyChecker::fix()).
         $result = $checker->fix();
         $this->newLine();
         $this->info(sprintf(
@@ -52,6 +56,7 @@ class DiagnoseIncidents extends Command
         return self::SUCCESS;
     }
 
+    /** Cabecera de cada comprobación: qué se busca y qué se hará con lo encontrado. */
     private function section(string $title, string $action): void
     {
         $this->newLine();
