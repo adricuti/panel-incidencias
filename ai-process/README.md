@@ -8,6 +8,7 @@
 2. Pasarle el enunciado (PDF) y pedir la implementación con Laravel + MySQL + Inertia/React,
    con comentarios y README en castellano, en tiempo limitado.
 3. Decisiones tomadas por mí antes de empezar: frontend con Inertia + React e idioma del código y la documentación.
+4. Revisión posterior, mejora por mejora (ver "Revisión y decisiones manuales").
 
 ## Partes generadas con ayuda de IA
 - Migraciones, modelos, enums, servicio de dominio, controlador y Form Requests.
@@ -32,3 +33,6 @@
 <!-- Completar tras la revisión: qué he cambiado, qué he validado y qué decisiones he tomado yo. -->
 - Elección de Inertia + React frente a Livewire.
 - Criterio de corrección de inconsistencias: qué se corrige automáticamente y qué se marca para revisión manual.
+- **Formulario de alta en un modal.** Tras probar la primera versión, decidí que el formulario fijo en una
+  columna lateral restaba espacio al listado. Pedí sustituirlo por un botón que abra un modal y que el
+  listado ocupe todo el ancho. Implementado con `<dialog>` nativo.

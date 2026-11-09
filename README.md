@@ -72,7 +72,8 @@ El comando es idempotente: ejecutarlo varias veces con `--fix` no duplica correc
 - **Listado** con filtros por estado, prioridad y texto libre (título, descripción, solicitante, responsable), paginado.
 - **Contador por estado**, que además funciona como **filtro rápido** sin recargar la página.
 - **Resaltado** de incidencias bloqueadas (fondo rojo) y vencidas (borde naranja + "vencida").
-- **Crear incidencia** con validación y errores mostrados junto a cada campo.
+- **Crear incidencia** desde un botón que abre un **modal**, con validación y errores mostrados junto a cada
+  campo (el modal no se cierra hasta que la incidencia se crea correctamente).
 - **Cambio de estado** solo con las transiciones permitidas; **confirmación** (con motivo opcional) antes de bloquear o resolver.
 - **Detalle** con historial de cambios (logs) y comentarios operativos; añadir comentarios.
 - Diseño responsive: tabla en escritorio, tarjetas en móvil.
@@ -110,6 +111,9 @@ backend las transiciones permitidas y qué estados requieren confirmación.
   El nombre del operador vive en un contexto React (`ActorContext`) y se recuerda en `localStorage`.
 - **Componentes pequeños** en `resources/js/Components`; los estilos por estado están centralizados en
   `resources/js/lib/status.js`.
+- **Modal con `<dialog>` nativo** (`Components/Modal.jsx`): `showModal()` ya aporta fondo, cierre con Esc y
+  foco atrapado, sin librerías. El estado abierto/cerrado vive en la página (`useState`); el formulario no
+  sabe que está en un modal, solo avisa con `onSuccess` / `onCancel`, así que es reutilizable.
 - **MySQL 5.7:** se fuerza el motor `InnoDB` en `config/database.php` (`DB_ENGINE`) porque algunas
   instalaciones usan MyISAM por defecto, sin FKs ni transacciones.
 
