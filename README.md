@@ -191,7 +191,16 @@ Para todas las consultas, el "último log de estado" se toma entre las acciones 
 ### 1. Incidencia resuelta sin log de resolución
 
 ```sql
-SELECT i.id, i.title, i.status
+SELECT i.id, i.title, i.status,
+       -- Último estado registrado y su log: los necesita la regla única para decidir.
+       (SELECT l.new_value FROM incident_logs l
+        WHERE l.incident_id = i.id
+          AND l.action IN ('created','status_changed','reopened','status_backfilled')
+        ORDER BY l.created_at DESC, l.id DESC LIMIT 1) AS last_log_status,
+       (SELECT l.id FROM incident_logs l
+        WHERE l.incident_id = i.id
+          AND l.action IN ('created','status_changed','reopened','status_backfilled')
+        ORDER BY l.created_at DESC, l.id DESC LIMIT 1) AS log_id
 FROM incidents i
 WHERE i.status = 'resolved'
   AND NOT EXISTS (
